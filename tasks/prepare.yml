@@ -24,12 +24,21 @@
   lineinfile:
     path: "{{ releases_path + releases_prepare_csum.1 | upper + 'SUMS' }}"
     regexp: " *{{ releases_prepare_csum.0.dest | basename }}$"
-    line: "{% if releases_prepare_csum[0][releases_prepare_csum.1] is not none %}{{ releases_prepare_csum[0][releases_prepare_csum.1] }} *{{ releases_prepare_csum.0.dest | basename }}{% else %}{{ lookup('pipe', releases_prepare_csum.1 + 'sum -b ' + releases_prepare_csum.0.dest) | regex_findall('([a-z0-9]{32,64})') | first + ' *' + releases_prepare_csum.0.dest | basename }}{% endif %}"
+    line: >-
+      {%- if releases_prepare_csum[0][releases_prepare_csum.1] is not none -%}
+      {{ releases_prepare_csum[0][releases_prepare_csum.1] + ' *' + releases_prepare_csum.0.dest | basename }}
+      {%- else -%}
+      {{ lookup('pipe', releases_prepare_csum.1 + 'sum -b ' + releases_prepare_csum.0.dest) |
+      regex_findall('([a-z0-9]{32,64})') | first + ' *' + releases_prepare_csum.0.dest | basename }}
+      {%- endif -%}
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0644
     create: true
-  loop: "{{ releases_prepare_upload.results | to_json | from_json | json_query('[?ends_with(dest, `iso`)].{dest: dest, md5: md5sum, sha1: checksum, sha256: sha256sum}') | product(['md5', 'sha1', 'sha256']) | list }}"
+ loop: >-
+   {{ releases_prepare_upload.results | to_json | from_json |
+   json_query('[?ends_with(dest, `iso`)].{dest: dest, md5: md5sum, sha1: checksum, sha256: sha256sum}')
+   | product(['md5', 'sha1', 'sha256']) | list }}
   loop_control:
     loop_var: releases_prepare_csum
     label: "{{ releases_prepare_csum.1 | upper + ': ' + releases_prepare_csum.0.dest | basename }}"

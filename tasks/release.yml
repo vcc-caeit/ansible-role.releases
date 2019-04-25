@@ -21,7 +21,9 @@
 
 - name: Ensure checksum files has correct content
   copy:
-    content: "{{ lookup('pipe', 'grep ' + files_pattern | strftime | basename | splitext | first | regex_replace('\\*', '.*') + ' ' + releases_path + '.pool/' + releases_release_csum) + '\n' }}"
+    content: >-
+      {{ lookup('pipe', 'grep ' + files_pattern | strftime | basename | splitext | first | regex_replace('\\*', '.*') +
+      ' ' + releases_path + '.pool/' + releases_release_csum) + '\n' }}
     dest: "{{ releases_path + releases_release_csum }}"
     owner: "{{ ansible_user }}"
     group: www-data
