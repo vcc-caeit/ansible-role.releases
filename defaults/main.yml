@@ -1,0 +1,4 @@
+---
+releases_path: /var/www/
+releases_base: releases/
+releases_pattern: custom.*

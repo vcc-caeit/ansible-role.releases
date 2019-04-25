@@ -1,0 +1,17 @@
+galaxy_info:
+  author: Nafallo Bjälevik
+  role_name: releases
+  description: Release mirror management
+  company: Volvo Cars Corporation
+  license: GPLv2
+  min_ansible_version: 2.5
+  platforms:
+    - name: Ubuntu
+      versions:
+      - xenial
+      - bionic
+  galaxy_tags:
+    - release_management
+    - releases_mirror
+    - webserver
+dependencies: []
