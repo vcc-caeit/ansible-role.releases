@@ -6,6 +6,7 @@
     group: www-data
     mode: 0755
     state: directory
+  tags: always
 
 - name: Ensure base content
   copy:
@@ -18,6 +19,7 @@
   loop_control:
     loop_var: releases_content
     label: "{{ releases_content.path }}"
+  tags: always
 
 - name: Run preparation tasks
   import_tasks: prepare.yml
