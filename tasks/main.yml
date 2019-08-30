@@ -11,11 +11,11 @@
 - name: Ensure base content
   copy:
     src: "{{ releases_content.root + releases_content.path }}"
-    dest: "{{ releases_path + releases_content.path }}"
+    dest: "{{ releases_path + '/' + releases_content.path }}"
     owner: "{{ ansible_user }}"
     group: www-data
     mode: preserve
-  loop: "{{ lookup('filetree', releases_base) | default('[]') }}"
+  loop: "{{ query('filetree', releases_base) | default('[]') }}"
   loop_control:
     loop_var: releases_content
     label: "{{ releases_content.path }}"

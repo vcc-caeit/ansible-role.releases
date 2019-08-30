@@ -1,7 +1,7 @@
 ---
 - name: Ensure created staging area
   file:
-    path: "{{ releases_path + '.pool' }}"
+    path: "{{ releases_path + '/.pool' }}"
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0755
@@ -10,11 +10,11 @@
 - name: Ensure files exist in staging area
   copy:
     src: "{{ releases_prepare_upload_file }}"
-    dest: "{{ releases_path + '.pool/'}}"
+    dest: "{{ releases_path + '/.pool/'}}"
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0644
-  loop: "{{ lookup('fileglob', releases_pattern | strftime, wantlist=true) }}"
+  loop: "{{ query('fileglob', releases_pattern) }}"
   loop_control:
     loop_var: releases_prepare_upload_file
     label: "{{ releases_prepare_upload_file | basename }}"
@@ -22,7 +22,7 @@
 
 - name: Ensure checksums exist in staging area
   lineinfile:
-    path: "{{ releases_path + releases_prepare_csum.1 | upper + 'SUMS' }}"
+    path: "{{ releases_path + '/.pool/' + releases_prepare_csum.1 | upper + 'SUMS' }}"
     regexp: " *{{ releases_prepare_csum.0.dest | basename }}$"
     line: >-
       {%- if releases_prepare_csum[0][releases_prepare_csum.1] is not none -%}
@@ -37,7 +37,7 @@
     create: true
   loop: >-
     {{ releases_prepare_upload.results | to_json | from_json |
-    json_query('[?ends_with(dest, `iso`)].{dest: dest, md5: md5sum, sha1: checksum, sha256: sha256sum}')
+    json_query('[?ends_with(dest, `iso`)].{dest: releases_prepare_upload_file, md5: md5sum, sha1: checksum, sha256: sha256sum}')
     | product(['md5', 'sha1', 'sha256']) | list }}
   loop_control:
     loop_var: releases_prepare_csum
