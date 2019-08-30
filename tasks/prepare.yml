@@ -1,7 +1,7 @@
 ---
 - name: Ensure created staging area
   file:
-    path: "{{ releases_path + '.pool' }}"
+    path: "{{ releases_path + '/.pool' }}"
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0755
@@ -10,7 +10,7 @@
 - name: Ensure files exist in staging area
   copy:
     src: "{{ releases_prepare_upload_file }}"
-    dest: "{{ releases_path + '.pool/'}}"
+    dest: "{{ releases_path + '/.pool/'}}"
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0644
@@ -22,7 +22,7 @@
 
 - name: Ensure checksums exist in staging area
   lineinfile:
-    path: "{{ releases_path + releases_prepare_csum.1 | upper + 'SUMS' }}"
+    path: "{{ releases_path + '/.pool/' + releases_prepare_csum.1 | upper + 'SUMS' }}"
     regexp: " *{{ releases_prepare_csum.0.dest | basename }}$"
     line: >-
       {%- if releases_prepare_csum[0][releases_prepare_csum.1] is not none -%}

@@ -10,7 +10,7 @@
 - name: Ensure symlinks exist for current releases
   file:
     src: "{{ '.pool/' + releases_release_symlink }}"
-    dest: "{{ releases_path + releases_release_symlink }}"
+    dest: "{{ releases_path + '/' + releases_release_symlink }}"
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0644
