@@ -2,8 +2,8 @@
 - name: Enumerate release files in root directory
   find:
     paths: "{{ releases_path }}"
-    patterns: "{{ lookup('fileglob', files_pattern | strftime, wantlist=true) | map('regex_replace', '^.*\\.([\\w]+)$', '*.\\1') | list | unique | join(',') }}"
-    excludes: "{{ releases_pattern | strftime | basename }}"
+    patterns: "{{ query('fileglob', releases_pattern) | map('regex_replace', '^.*\\.([\\w]+)$', '*.\\1') | list | unique | join(',') }}"
+    excludes: "{{ releases_pattern | basename }}"
     file_type: link
   register: releases_release_find
 
@@ -15,7 +15,7 @@
     group: www-data
     mode: 0644
     state: link
-  loop: "{{ lookup('fileglob', releases_pattern | strftime, wantlist=true) }}"
+  loop: "{{ query('fileglob', releases_pattern) | map('basename') | list }}"
   loop_control:
     loop_var: releases_release_symlink
 

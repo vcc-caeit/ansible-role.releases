@@ -14,7 +14,7 @@
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0644
-  loop: "{{ lookup('fileglob', releases_pattern | strftime, wantlist=true) }}"
+  loop: "{{ query('fileglob', releases_pattern) }}"
   loop_control:
     loop_var: releases_prepare_upload_file
     label: "{{ releases_prepare_upload_file | basename }}"
