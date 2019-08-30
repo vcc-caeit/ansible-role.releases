@@ -37,7 +37,7 @@
     create: true
   loop: >-
     {{ releases_prepare_upload.results | to_json | from_json |
-    json_query('[?ends_with(dest, `iso`)].{dest: dest, md5: md5sum, sha1: checksum, sha256: sha256sum}')
+    json_query('[?ends_with(dest, `iso`)].{dest: releases_prepare_upload_file, md5: md5sum, sha1: checksum, sha256: sha256sum}')
     | product(['md5', 'sha1', 'sha256']) | list }}
   loop_control:
     loop_var: releases_prepare_csum
