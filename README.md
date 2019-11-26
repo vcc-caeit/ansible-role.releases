@@ -1,5 +1,5 @@
 Ansible Role: releases
-=========
+======================
 
 This role helps with configuring base content for a releases mirror, as well as pre-staging releases into the staging area `.pool` and then actually making the release happen.
 The pre-staging are only ran when specifing the tag `prepare` and the release only happens when specifying the `release` tag.
@@ -18,6 +18,10 @@ Which path on your controller to look for base content in. Could be a relative t
 File pattern for your release files. The default is `custom.*` since that is the default for what the `vcc-caeit.build_iso` role produce.
 
     releases_pattern: custom.*
+
+List of files to keep as visible release symlinks. This could be used if you have valid release files that doesn't match `releases_pattern`.
+
+    releases_keepfiles: []
 
 Ownership of files and directories can be set.
 
