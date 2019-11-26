@@ -11,8 +11,8 @@
   file:
     src: "{{ '.pool/' + releases_release_symlink }}"
     dest: "{{ releases_path + '/' + releases_release_symlink }}"
-    owner: "{{ ansible_user }}"
-    group: www-data
+    owner: "{{ releases_owner }}"
+    group: "{{ releases_group }}"
     mode: 0644
     state: link
   loop: "{{ query('fileglob', releases_pattern) | map('basename') | list }}"
@@ -38,8 +38,8 @@
       {{ releases_release_csumfile.content | b64decode | regex_search('.*' + file + '$', multiline=true) }}
       {% endfor -%}
     dest: "{{ releases_path + '/' + releases_release_csumfile.dest }}"
-    owner: "{{ ansible_user }}"
-    group: www-data
+    owner: "{{ releases_owner }}"
+    group: "{{ releases_group }}"
     mode: 0644
   loop: "{{ releases_release_csums.results | json_query('[*].{dest: releases_release_csum, content: content}') }}"
   loop_control:
