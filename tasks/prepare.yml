@@ -10,7 +10,7 @@
 - name: Ensure files exist in staging area
   copy:
     src: "{{ releases_prepare_upload_file }}"
-    dest: "{{ releases_path + '/.pool/'}}"
+    dest: "{{ releases_path + '/.pool/' }}"
     owner: "{{ ansible_user }}"
     group: www-data
     mode: 0644
