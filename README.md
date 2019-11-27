@@ -19,6 +19,11 @@ File pattern for your release files. The default is `custom.*` since that is the
 
     releases_pattern: custom.*
 
+Ownership of files and directories can be set.
+
+    releases_owner: www-data
+    releases_group: www-data
+
 Example Playbook
 ----------------
 

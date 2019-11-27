@@ -2,8 +2,8 @@
 - name: Ensure created staging area
   file:
     path: "{{ releases_path + '/.pool' }}"
-    owner: "{{ ansible_user }}"
-    group: www-data
+    owner: "{{ releases_owner }}"
+    group: "{{ releases_group }}"
     mode: 0755
     state: directory
 
@@ -11,8 +11,8 @@
   copy:
     src: "{{ releases_prepare_upload_file }}"
     dest: "{{ releases_path + '/.pool/' }}"
-    owner: "{{ ansible_user }}"
-    group: www-data
+    owner: "{{ releases_owner }}"
+    group: "{{ releases_group }}"
     mode: 0644
   loop: "{{ query('fileglob', releases_pattern) }}"
   loop_control:
@@ -31,8 +31,8 @@
       {{ lookup('pipe', releases_prepare_csum.1 + 'sum -b ' + releases_prepare_csum.0.dest) |
       regex_findall('([a-z0-9]{32,64})') | first + ' *' + releases_prepare_csum.0.dest | basename }}
       {%- endif -%}
-    owner: "{{ ansible_user }}"
-    group: www-data
+    owner: "{{ releases_owner }}"
+    group: "{{ releases_group }}"
     mode: 0644
     create: true
   loop: >-
