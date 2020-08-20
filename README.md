@@ -33,7 +33,7 @@ Example Playbook
 
     - hosts: mirrors
       roles:
-        - vcc-caeit.releases
+        - vcc_caeit.releases
 
 License
 -------
