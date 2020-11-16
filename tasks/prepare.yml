@@ -9,27 +9,26 @@
 
 - name: Ensure files exist in staging area
   copy:
-    src: "{{ releases_prepare_upload_file }}"
+    src: "{{ item }}"
     dest: "{{ releases_path + '/.pool/' }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
   loop: "{{ query('fileglob', releases_pattern) }}"
   loop_control:
-    loop_var: releases_prepare_upload_file
-    label: "{{ releases_prepare_upload_file | basename }}"
+    label: "{{ item | basename }}"
   register: releases_prepare_upload
 
 - name: Ensure checksums exist in staging area
   lineinfile:
-    path: "{{ releases_path + '/.pool/' + releases_prepare_csum.1 | upper + 'SUMS' }}"
-    regexp: " *{{ releases_prepare_csum.0.dest | basename }}$"
+    path: "{{ releases_path + '/.pool/' + item.1 | upper + 'SUMS' }}"
+    regexp: " *{{ item.0.dest | basename }}$"
     line: >-
-      {%- if releases_prepare_csum[0][releases_prepare_csum.1] is not none -%}
-      {{ releases_prepare_csum[0][releases_prepare_csum.1] + ' *' + releases_prepare_csum.0.dest | basename }}
+      {%- if item[0][item.1] is not none -%}
+      {{ item[0][item.1] + ' *' + item.0.dest | basename }}
       {%- else -%}
-      {{ lookup('pipe', releases_prepare_csum.1 + 'sum -b ' + releases_prepare_csum.0.dest) |
-      regex_findall('([a-z0-9]{32,64})') | first + ' *' + releases_prepare_csum.0.dest | basename }}
+      {{ lookup('pipe', item.1 + 'sum -b ' + item.0.dest) |
+      regex_findall('([a-z0-9]{32,64})') | first + ' *' + item.0.dest | basename }}
       {%- endif -%}
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
@@ -37,8 +36,8 @@
     create: true
   loop: >-
     {{ releases_prepare_upload.results | to_json | from_json |
-    json_query('[?ends_with(dest, `iso`)].{dest: releases_prepare_upload_file, md5: md5sum, sha1: checksum, sha256: sha256sum}')
+    json_query('[?ends_with(dest, `iso`)].{dest: item, md5: md5sum, sha1: checksum, sha256: sha256sum}')
     | product(['md5', 'sha1', 'sha256']) | list }}
   loop_control:
-    loop_var: releases_prepare_csum
-    label: "{{ releases_prepare_csum.1 | upper + ': ' + releases_prepare_csum.0.dest | basename }}"
+    label: "{{ item.1 | upper + ': ' + item.0.dest | basename }}"
+  when: not ansible_check_mode
