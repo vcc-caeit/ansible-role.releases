@@ -10,15 +10,14 @@
 
 - name: Ensure base content
   copy:
-    src: "{{ releases_content.root + releases_content.path }}"
+    src: "{{ item.root + item.path }}"
     dest: "{{ releases_path + '/' }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: preserve
   loop: "{{ query('filetree', releases_base) | default('[]') | to_json | from_json | json_query('[?!(contains(path, `/`))]') }}"
   loop_control:
-    loop_var: releases_content
-    label: "{{ releases_content.path }}"
+    label: "{{ item.path }}"
   tags: always
 
 - name: Run preparation tasks

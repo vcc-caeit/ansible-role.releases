@@ -9,47 +9,42 @@
 
 - name: Ensure symlinks exist for current releases
   file:
-    src: "{{ '.pool/' + releases_release_symlink }}"
-    dest: "{{ releases_path + '/' + releases_release_symlink }}"
+    src: "{{ '.pool/' + item }}"
+    dest: "{{ releases_path + '/' + item }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
     state: link
   loop: "{{ query('fileglob', releases_pattern) | map('basename') | list | union(releases_keepfiles | default([])) }}"
-  loop_control:
-    loop_var: releases_release_symlink
   register: releases_release_files
 
 - name: Enumerate checksums from .pool
   slurp:
-    src: "{{ releases_path + '/.pool/' + releases_release_csum }}"
+    src: "{{ releases_path + '/.pool/' + item }}"
   loop:
     - MD5SUMS
     - SHA1SUMS
     - SHA256SUMS
-  loop_control:
-    loop_var: releases_release_csum
   register: releases_release_csums
 
 - name: Ensure checksum files has correct content
   copy:
     content: |
-      {%- for file in releases_release_files.results | to_json | from_json | json_query('[?ends_with(src, `iso`)].releases_release_symlink') -%}
-      {{ releases_release_csumfile.content | b64decode | regex_search('.*' + file + '$', multiline=true) }}
+      {%- for file in releases_release_files.results | to_json | from_json | json_query('[?ends_with(src, `iso`)].item') -%}
+      {{ item.content | b64decode | regex_search('.*' + file + '$', multiline=true) }}
       {% endfor -%}
-    dest: "{{ releases_path + '/' + releases_release_csumfile.dest }}"
+    dest: "{{ releases_path + '/' + item.dest }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
-  loop: "{{ releases_release_csums.results | json_query('[*].{dest: releases_release_csum, content: content}') }}"
+  loop: "{{ releases_release_csums.results | json_query('[*].{dest: item, content: content}') }}"
   loop_control:
-    loop_var: releases_release_csumfile
-    label: "{{ releases_release_csumfile.dest }}"
+    label: "{{ item.dest }}"
 
 - name: Ensure no symlinks for previous releases
   file:
-    path: "{{ releases_release_rmfile }}"
+    path: "{{ item }}"
     state: absent
   loop: "{{ releases_release_find.files | map(attribute='path') | list }}"
   loop_control:
-    loop_var: releases_release_rmfile
+    label: "{{ item | basename }}"
