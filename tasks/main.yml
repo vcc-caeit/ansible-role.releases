@@ -27,6 +27,12 @@
     - never
     - prepare
 
+- name: Run unprepare tasks # in case the image didn't work
+  import_tasks: unprepare.yml
+  tags:
+   - never
+   - unprepare
+
 - name: Run release tasks
   import_tasks: release.yml
   tags:
