@@ -18,6 +18,17 @@
   loop: "{{ query('filetree', releases_base) | to_json | from_json | json_query('[?!(contains(path, `/`))]') }}"
   loop_control:
     label: "{{ item.path }}"
+
+- name: Ensure templated content
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ releases_path + '/' + item.path.rstrip('.j2') }}"
+    owner: "{{ releases_owner }}"
+    group: "{{ releases_group }}"
+    mode: preserve
+  loop: "{{ query('filetree', 'templates/' + releases_base) }}"
+  loop_control:
+    label: "{{ item.path.rstrip('.j2') }}"
   tags: always
 
 - name: Run preparation tasks
