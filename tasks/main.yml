@@ -15,7 +15,7 @@
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: preserve
-  loop: "{{ query('filetree', releases_base) | default('[]') | to_json | from_json | json_query('[?!(contains(path, `/`))]') }}"
+  loop: "{{ query('filetree', releases_base) | to_json | from_json | json_query('[?!(contains(path, `/`))]') }}"
   loop_control:
     label: "{{ item.path }}"
   tags: always
