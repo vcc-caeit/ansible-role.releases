@@ -1,34 +1,41 @@
 ---
-- name: Ensure created root directory
+- name: Ensure directories
   file:
-    path: "{{ releases_path }}"
+    path: "{{ releases_path }}/{{ item.path }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0755
     state: directory
+  loop: "{{ [{'path': None}] |
+    union(query('filetree', releases_base)) |
+    union(query('filetree', 'templates/' + releases_base)) |
+    selectattr('state', 'eq', 'directory') }}"
+  loop_control:
+    label: "{{ releases_path }}/{{ item.path }}"
   tags: always
 
-- name: Ensure base content
+- name: Ensure files
   copy:
-    src: "{{ item.root + item.path }}"
-    dest: "{{ releases_path + '/' }}"
+    src: "{{ item.src }}"
+    dest: "{{ releases_path }}/{{ item.path }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: preserve
-  loop: "{{ query('filetree', releases_base) | to_json | from_json | json_query('[?!(contains(path, `/`))]') }}"
+  loop: "{{ query('filetree', releases_base) | selectattr('state', 'eq', 'file') }}"
   loop_control:
-    label: "{{ item.path }}"
+    label: "{{ releases_path }}/{{ item.path }}"
+  tags: always
 
-- name: Ensure templated content
+- name: Ensure templates
   template:
     src: "{{ item.src }}"
-    dest: "{{ releases_path + '/' + item.path.rstrip('.j2') }}"
+    dest: "{{ releases_path }}/{{ item.path.rstrip('.j2') }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: preserve
   loop: "{{ query('filetree', 'templates/' + releases_base) }}"
   loop_control:
-    label: "{{ item.path.rstrip('.j2') }}"
+    label: "{{ releases_path }}/{{ item.path.rstrip('.j2') }}"
   tags: always
 
 - name: Run preparation tasks
@@ -37,11 +44,11 @@
     - never
     - prepare
 
-- name: Run unprepare tasks # in case the image didn't work
+- name: Run unprepare tasks  # in case the image didn't work
   import_tasks: unprepare.yml
   tags:
-   - never
-   - unprepare
+    - never
+    - unprepare
 
 - name: Run release tasks
   import_tasks: release.yml

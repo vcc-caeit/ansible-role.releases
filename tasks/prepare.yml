@@ -1,7 +1,7 @@
 ---
 - name: Ensure created staging area
   file:
-    path: "{{ releases_path + '/.pool' }}"
+    path: "{{ releases_path }}/.pool"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0755
@@ -10,7 +10,7 @@
 - name: Ensure files exist in staging area
   copy:
     src: "{{ item }}"
-    dest: "{{ releases_path + '/.pool/' }}"
+    dest: "{{ releases_path }}/.pool/"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
@@ -21,23 +21,22 @@
 
 - name: Ensure checksums exist in staging area
   lineinfile:
-    path: "{{ releases_path + '/.pool/' + item.1 | upper + 'SUMS' }}"
-    regexp: " *{{ item.0.dest | basename }}$"
+    path: "{{ releases_path }}/.pool/{{ item.1 | upper }}S"
+    regexp: " *{{ item.0.item | basename }}$"
     line: >-
-      {%- if item[0][item.1] is not none -%}
-      {{ item[0][item.1] + ' *' + item.0.dest | basename }}
+      {%- if item[0][item.1] is defined -%}
+      {{ item[0][item.1] }} *{{ item.0.item | basename }}
+      {%- elif item.1 == 'sha1sum' -%}
+      {{ item[0]["checksum"] }} *{{ item.0.item | basename }}
       {%- else -%}
-      {{ lookup('pipe', item.1 + 'sum -b ' + item.0.dest) |
-      regex_findall('([a-z0-9]{32,64})') | first + ' *' + item.0.dest | basename }}
+      {{ lookup('pipe', item.1 + ' -b ' + item.0.item) |
+      regex_findall('([a-z0-9]{32,64})') | first }} *{{ item.0.item | basename }}
       {%- endif -%}
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
     create: true
-  loop: >-
-    {{ releases_prepare_upload.results | to_json | from_json |
-    json_query('[?ends_with(dest, `iso`)].{dest: item, md5: md5sum, sha1: checksum, sha256: sha256sum}')
-    | product(['md5', 'sha1', 'sha256']) | list }}
+  loop: "{{ releases_prepare_upload.results | selectattr('dest', 'search', 'iso$') | product(['md5sum', 'sha1sum', 'sha256sum']) | list }}"
   loop_control:
-    label: "{{ item.1 | upper + ': ' + item.0.dest | basename }}"
+    label: "{{ item.1 | upper }}: {{ item.0.item | basename }}"
   when: not ansible_check_mode

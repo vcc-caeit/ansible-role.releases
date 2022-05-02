@@ -9,8 +9,8 @@
 
 - name: Ensure symlinks exist for current releases
   file:
-    src: "{{ '.pool/' + item }}"
-    dest: "{{ releases_path + '/' + item }}"
+    src: ".pool/{{ item }}"
+    dest: "{{ releases_path }}/{{ item }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
@@ -20,7 +20,7 @@
 
 - name: Enumerate checksums from .pool
   slurp:
-    src: "{{ releases_path + '/.pool/' + item }}"
+    src: "{{ releases_path }}/.pool/{{ item | upper }}S"
   loop:
     - MD5SUMS
     - SHA1SUMS
@@ -30,16 +30,16 @@
 - name: Ensure checksum files has correct content
   copy:
     content: |
-      {%- for file in releases_release_files.results | to_json | from_json | json_query('[?ends_with(src, `iso`)].item') -%}
-      {{ item.content | b64decode | regex_search('.*' + file + '$', multiline=true) }}
+      {%- for file in releases_release_files.results | selectattr('src', 'search', 'iso$') -%}
+      {{ item.content | b64decode | regex_search('.*' + file.item + '$', multiline=True) }}
       {% endfor -%}
-    dest: "{{ releases_path + '/' + item.dest }}"
+    dest: "{{ releases_path }}/{{ item.item }}"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
-  loop: "{{ releases_release_csums.results | json_query('[*].{dest: item, content: content}') }}"
+  loop: "{{ releases_release_csums.results }}"
   loop_control:
-    label: "{{ item.dest }}"
+    label: "{{ item.item }}"
 
 - name: Ensure no symlinks for previous releases
   file:
