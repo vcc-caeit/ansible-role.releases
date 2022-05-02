@@ -7,8 +7,8 @@
     mode: 0755
     state: directory
   loop: "{{ [{'path': None}] |
-    union(query('filetree', releases_files | default(releases_base, True))) |
-    union(query('filetree', releases_templates | default('templates/' + releases_base, True))) |
+    union(query('filetree', releases_files)) |
+    union(query('filetree', releases_templates)) |
     selectattr('state', 'eq', 'directory') }}"
   loop_control:
     label: "{{ releases_path }}/{{ item.path }}"
@@ -21,7 +21,7 @@
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: preserve
-  loop: "{{ query('filetree', releases_files | default(releases_base, True)) | selectattr('state', 'eq', 'file') }}"
+  loop: "{{ query('filetree', releases_files) | selectattr('state', 'eq', 'file') }}"
   loop_control:
     label: "{{ releases_path }}/{{ item.path }}"
   tags: always
@@ -33,7 +33,7 @@
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: preserve
-  loop: "{{ query('filetree', releases_templates | default('templates/' + releases_base, True)) }}"
+  loop: "{{ query('filetree', releases_templates) | selectattr('state', 'eq', 'files') }}"
   loop_control:
     label: "{{ releases_path }}/{{ item.path.rstrip('.j2') }}"
   tags: always
