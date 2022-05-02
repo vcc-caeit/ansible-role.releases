@@ -6,7 +6,7 @@
     group: "{{ releases_group }}"
     mode: 0755
     state: directory
-  loop: "{{ [{'path': None}] |
+  loop: "{{ [{'path': None, 'state': 'directory'}] |
     union(query('filetree', releases_files)) |
     union(query('filetree', releases_templates)) |
     selectattr('state', 'eq', 'directory') }}"
