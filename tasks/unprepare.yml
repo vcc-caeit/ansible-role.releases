@@ -1,7 +1,7 @@
 ---
 - name: Remove files in staging area
   file:
-    path: "{{ releases_path + '/.pool/' + item | basename }}"
+    path: "{{ releases_path }}/.pool/{{ item | basename }}"
     state: absent
   loop: "{{ query('fileglob', releases_pattern) }}"
   loop_control:
@@ -9,9 +9,9 @@
 
 - name: Remove checksums in staging area
   lineinfile:
-    path: "{{ releases_path + '/.pool/' + item.1 | upper + 'SUMS' }}"
+    path: "{{ releases_path }}/.pool/{{ item.1 | upper }}SUMS"
     regexp: " *{{ item.0 | basename }}$"
     state: absent
-  loop: "{{ query('fileglob', releases_pattern) | select('contains', '.iso') | list | product(['md5', 'sha1', 'sha256']) | list }}"
+  loop: "{{ query('fileglob', releases_pattern) | select('contains', '.iso') | product(['md5', 'sha1', 'sha256']) | list }}"
   loop_control:
-    label: "{{ item.1 | upper + ': ' + item.0 | basename }}"
+    label: "{{ item.1 | upper }}: {{ item.0 | basename }}"
