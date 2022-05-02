@@ -11,9 +11,11 @@ The path on the remote you would like to populate with your releases.
 
     releases_path: /var/www
 
-Which path on your controller to look for base content in. Could be a relative to `files`, `inventory_dir` or `playbook_dir`.
+Which path on your controller to look for file and template content in. Could be a relative to `files`, `inventory_dir` or `playbook_dir` and defaults to `None`.
+Defaults in the playbook uses the deprecated `releases_base`.
 
-    releases_base: releases/
+    releases_files: none
+    releases_templates: none
 
 File pattern for your release files. The default is `custom.*` since that is the default for what the `vcc-caeit.build_iso` role produce.
 
