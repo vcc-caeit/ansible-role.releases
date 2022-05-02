@@ -1,6 +1,7 @@
 ---
 releases_path: /var/www/
-releases_base: releases/
+releases_files: none
 releases_owner: www-data
 releases_group: www-data
 releases_pattern: custom.*
+releases_templates: none
