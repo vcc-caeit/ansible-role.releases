@@ -36,7 +36,7 @@
     group: "{{ releases_group }}"
     mode: 0644
     create: true
-  loop: "{{ releases_prepare_upload.results | selectattr('dest', 'search', 'iso$') | product(['md5sum', 'sha1sum', 'sha256sum']) | list }}"
+  loop: "{{ releases_prepare_upload.results | selectattr('dest', 'search', 'iso$') | product(releases_checksums) | list }}"
   loop_control:
     label: "{{ item.1 | upper }}: {{ item.0.item | basename }}"
   when: not ansible_check_mode

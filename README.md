@@ -17,6 +17,11 @@ Defaults in the playbook uses the deprecated `releases_base`.
     releases_files: none
     releases_templates: none
 
+The role will populate the checksum files for the releases. There is now a list of checksums, with the default being only `SHA256SUMS` files. This is based on [releases.ubuntu.com](https://releases.ubuntu.com/).
+
+    releases_checksums:
+      - sha256sum
+
 File pattern for your release files. The default is `custom.*` since that is the default for what the `vcc-caeit.build_iso` role produce.
 
     releases_pattern: custom.*
