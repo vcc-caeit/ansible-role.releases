@@ -5,3 +5,7 @@ releases_owner: www-data
 releases_group: www-data
 releases_pattern: custom.*
 releases_templates: none
+releases_checksums:
+  # md5sum
+  # sha1sum
+  - sha256sum

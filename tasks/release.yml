@@ -21,10 +21,9 @@
 - name: Enumerate checksums from .pool
   slurp:
     src: "{{ releases_path }}/.pool/{{ item | upper }}S"
-  loop:
-    - MD5SUMS
-    - SHA1SUMS
-    - SHA256SUMS
+  loop: "{{ releases_checksums }}"
+  loop_control:
+    label: "{{ item | upper }}S"
   register: releases_release_csums
 
 - name: Ensure checksum files has correct content
@@ -33,13 +32,13 @@
       {%- for file in releases_release_files.results | selectattr('src', 'search', 'iso$') -%}
       {{ item.content | b64decode | regex_search('.*' + file.item + '$', multiline=True) }}
       {% endfor -%}
-    dest: "{{ releases_path }}/{{ item.item }}"
+    dest: "{{ releases_path }}/{{ item.item | upper }}S"
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: 0644
   loop: "{{ releases_release_csums.results }}"
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ item.item | upper }}S"
 
 - name: Ensure no symlinks for previous releases
   file:
