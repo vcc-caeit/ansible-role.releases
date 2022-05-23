@@ -33,7 +33,7 @@
     owner: "{{ releases_owner }}"
     group: "{{ releases_group }}"
     mode: preserve
-  loop: "{{ query('filetree', releases_templates) | selectattr('state', 'eq', 'files') }}"
+  loop: "{{ query('filetree', releases_templates) | selectattr('state', 'eq', 'file') }}"
   loop_control:
     label: "{{ releases_path }}/{{ item.path.rstrip('.j2') }}"
   tags: always
